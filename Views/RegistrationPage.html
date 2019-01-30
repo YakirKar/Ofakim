@@ -1,0 +1,48 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <script src="../Scripts/jquery-3.3.1.min.js"></script>
+    <script src="../Scripts/RegistartionPage/RegistartionPageJs.js"></script>
+    <link href="../Content/bootstrap.min.css" rel="stylesheet" />
+
+    <link href="../Content/RegistrationPage/RegistrationPageStyle.css" rel="stylesheet" />
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <div  class="container table-bordered text-center "  >
+        <div id="containerDiv">
+            <h2>User Registartion</h2>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control required" id="email" placeholder="Enter email" required>
+            </div>
+            <div class="form-group">
+                <label for="birthDay">Birthday:</label>
+                <input type="date" class="form-control required" id="birthDay" placeholder="Enter Birthday" required>
+            </div>
+            <div class="form-group">
+                <label for="fullname">Full Name:</label>
+                <input type="text" class="form-control required" id="fullname" placeholder="Enter Name" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">Phone:</label>
+                <input type="tel" class="form-control required" id="phone" maxlength="10" pattern="[0-9]+" placeholder="Enter phone"  >
+            </div>
+            <div class="form-group ">
+                <label for="gender">Gender:</label>
+                <select class="form-control required" id="gender">
+                    <option value="">(Select)</option>
+                    <option value="0">Male</option>
+                    <option value="1">Female</option>
+                </select>
+            </div>
+            <button type="button" id="BtnRegister"  class="btn btn-default">Register</button>
+        </div>
+        
+    </div>
+
+</body>
+</html>
