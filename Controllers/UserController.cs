@@ -11,7 +11,11 @@ namespace Ofakim_Project.Controllers
 {
     public class UserController : ApiController
     {
-        private UserDb dbu = new UserDb();
+        private UserDb dbu;
+        public UserController()
+        {
+            dbu = new UserDb();
+        }
         // GET api/User
         [HttpGet]
         public List<User> Get()

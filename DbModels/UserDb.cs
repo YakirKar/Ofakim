@@ -6,16 +6,21 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
 using Newtonsoft.Json;
+using Ofakim_Project.InterFaces;
 using Ofakim_Project.Models;
 
 namespace MvcDemo.Models
 {
-    public class UserDb
+    public class UserDb: IDbConnections
     {
-        DbConnection dbCon = new DbConnection();
+        DbConnection dbCon;
+        public UserDb()
+        {
+            dbCon = CreateDbConnection();
+        }
         public List<User> Get()
         {
-            return JsonConvert.DeserializeObject <List<User>>(dbCon.Get("select * from User_Table"));
+            return dbCon.Get("select * from User_Table", typeof(User)).Cast<User>().ToList();
         }
 
         public int Add(User u1)
@@ -29,6 +34,9 @@ namespace MvcDemo.Models
             return dbCon.DoQuery("AddUser", parms);
         }
 
-    
+        public DbConnection CreateDbConnection()
+        {
+            return new DbConnection();
+        }
     }
 }

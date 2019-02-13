@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -9,10 +10,11 @@ using System.Web;
 using MvcDemo.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Ofakim_Project.InterFaces;
 
 namespace Ofakim_Project.Models
 {
-    public class DbConnection
+    public class DbConnection : IDisposable
     {
         protected SqlConnection Con { get; private set; }
 
@@ -63,26 +65,49 @@ namespace Ofakim_Project.Models
       
 
       
-        public string Get(string sql)
+        public IEnumerable Get(string sqlText, Type Objecttype, CommandType type = CommandType.Text)
         {
-            SqlCommand cmd = new SqlCommand(sql, GetCon());
-            SqlDataReader sdr;
             DataTable dt = new DataTable();
-            sdr = cmd.ExecuteReader();
+            SqlDataReader sdr = GetCommand(sqlText, type).ExecuteReader();
             dt.Load(sdr);
-            var str = FillFromDb(dt);
-            CloseCon();
-            return str;
+            //Or
+            //SqlDataAdapter adpter = new SqlDataAdapter(sql, GetCon());
+            //adpter.Fill(dt);
+            Dispose();
+
+            var rows = FillFromDb(dt);
+            return FillObject(Objecttype, rows);
+
+        }
+
+        IEnumerable FillObject(Type type, List<Dictionary<string, object>> rows)
+        {
+            var instance = Activator.CreateInstance(type);
+            List<object> OjectList = new List<object>();
+            foreach (var row in rows)
+            {
+                OjectList.Add(((IDbFiller)instance).FillRows(row));
+            }
+            return (IEnumerable)OjectList;
+        }
+
+        SqlCommand GetCommand(string sqlText,CommandType type)
+        {
+            var cmd = new SqlCommand();
+            cmd.CommandType = type;
+            cmd.Connection = GetCon();
+            cmd.CommandText = sqlText;
+            return cmd;
         }
 
 
-     
-        
-
-     
 
 
-        public string FillFromDb(DataTable dt)
+
+
+
+
+        public List<Dictionary<string, object>> FillFromDb(DataTable dt)
         {
             List<Dictionary<string, object>> rows = new List<Dictionary<string, object>>();
             Dictionary<string, object> row;
@@ -95,7 +120,7 @@ namespace Ofakim_Project.Models
                 }
                 rows.Add(row);
             }
-            return JsonConvert.SerializeObject(rows);
+            return rows;
         }
 
         private  bool IsServerConnected(string connectionString)
@@ -114,15 +139,9 @@ namespace Ofakim_Project.Models
             }
         }
 
-
-
-
-
-
-
-
-
-
-
+        public void Dispose()
+        {
+            CloseCon();
+        }
     }
 }
