@@ -82,10 +82,11 @@ namespace Ofakim_Project.Models
 
         IEnumerable FillObject(Type type, List<Dictionary<string, object>> rows)
         {
-            var instance = Activator.CreateInstance(type);
+        
             List<object> OjectList = new List<object>();
             foreach (var row in rows)
             {
+				    var instance = Activator.CreateInstance(type);
                 OjectList.Add(((IDbFiller)instance).FillRows(row));
             }
             return (IEnumerable)OjectList;
