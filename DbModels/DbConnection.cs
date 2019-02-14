@@ -54,21 +54,21 @@ namespace Ofakim_Project.Models
             {
                 rowsaffected = cmd.ExecuteNonQuery();
             }
-            catch(SqlException ex)
+            catch(SqlException)
             {
                 return -1;
             }
             
-            CloseCon();
+            Dispose();
             return rowsaffected;
         }
       
 
       
-        public IEnumerable Get(string sqlText, Type Objecttype, CommandType type = CommandType.Text)
+        public IEnumerable Get(string sqlText, Type Objecttype, CommandType type = CommandType.Text, List<SqlParameter> parms = null)
         {
             DataTable dt = new DataTable();
-            SqlDataReader sdr = GetCommand(sqlText, type).ExecuteReader();
+            SqlDataReader sdr = GetCommand(sqlText, type, parms).ExecuteReader();
             dt.Load(sdr);
             //Or
             //SqlDataAdapter adpter = new SqlDataAdapter(sql, GetCon());
@@ -82,22 +82,27 @@ namespace Ofakim_Project.Models
 
         IEnumerable FillObject(Type type, List<Dictionary<string, object>> rows)
         {
-        
+            
             List<object> OjectList = new List<object>();
             foreach (var row in rows)
             {
-				    var instance = Activator.CreateInstance(type);
+                var instance = Activator.CreateInstance(type);
+                if(instance is IDbFiller)
                 OjectList.Add(((IDbFiller)instance).FillRows(row));
+                else
+                    OjectList.Add(row);
             }
             return (IEnumerable)OjectList;
         }
 
-        SqlCommand GetCommand(string sqlText,CommandType type)
+        SqlCommand GetCommand(string sqlText,CommandType type, List<SqlParameter> parms)
         {
             var cmd = new SqlCommand();
             cmd.CommandType = type;
             cmd.Connection = GetCon();
             cmd.CommandText = sqlText;
+            if(parms != null)
+            cmd.Parameters.AddRange(parms.ToArray());
             return cmd;
         }
 
@@ -110,15 +115,12 @@ namespace Ofakim_Project.Models
 
         public List<Dictionary<string, object>> FillFromDb(DataTable dt)
         {
-            List<Dictionary<string, object>> rows = new List<Dictionary<string, object>>();
-            Dictionary<string, object> row;
+            var rows = new List<Dictionary<string, object>>();
             foreach (DataRow dr in dt.Rows)
             {
-                row = new Dictionary<string, object>();
+                var row = new Dictionary<string, object>();
                 foreach (DataColumn col in dt.Columns)
-                {
                     row.Add(col.ColumnName, dr[col]);
-                }
                 rows.Add(row);
             }
             return rows;
@@ -143,6 +145,8 @@ namespace Ofakim_Project.Models
         public void Dispose()
         {
             CloseCon();
+            // Suppress finalization.
+          // GC.SuppressFinalize(this);
         }
     }
 }

@@ -20,6 +20,16 @@ namespace MvcDemo.Models
         }
         public List<User> Get()
         {
+			   //List<SqlParameter> parms = new List<SqlParameter>();
+            //parms.Add(new SqlParameter("@Name", "y"));
+            //SqlParameter pCount = new SqlParameter();
+            //pCount.ParameterName = "@UserCount";
+            //pCount.DbType = DbType.Int32;
+            //pCount.Direction = ParameterDirection.Output;
+            //parms.Add(pCount);
+            //Dbcon.Get("spGetUserCount", typeof(int), CommandType.StoredProcedure, parms);
+            //var val = pCount.Value;
+            //get value from proc
             return dbCon.Get("select * from User_Table", typeof(User)).Cast<User>().ToList();
         }
 
